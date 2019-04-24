@@ -3,22 +3,16 @@ package main
 //go:generate go build -buildmode=plugin -o main.so main.go
 
 import (
-    "fmt"
-    "time"
+	"github.com/ghostsquad/goeuler/pkg"
 )
 
 type solution struct {}
 
-func tookSeconds(d time.Duration) string {
-	return fmt.Sprintf("%f seconds", d.Seconds())
-}
-
 func (s solution) Solve() {
-    fmt.Println("Hello From Example")
-
-    defer func(begin time.Time) {
-        fmt.Printf("took: %s\n", tookSeconds(time.Since(begin)))
-    }(time.Now())
+	pkg.SolveWith("example", func() int {
+		answer := 0
+		return answer
+	})
 }
 
 var Solution solution
