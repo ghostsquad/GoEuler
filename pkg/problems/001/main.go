@@ -1,6 +1,6 @@
 package main
 
-//go:generate go build -buildmode=plugin -o 001.so 001.go
+//go:generate go build -buildmode=plugin -o main.so main.go
 
 import "fmt"
 

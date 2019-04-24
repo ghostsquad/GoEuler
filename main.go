@@ -26,7 +26,7 @@ var rootCmd = &cobra.Command{
 		// load module
 		// 1. open the so file to load the symbols
 		problemFileNoExt := fmt.Sprintf("%03d", problemNum)
-		plug, err := plugin.Open(fmt.Sprintf("./pkg/problems/%s.so",  problemFileNoExt))
+		plug, err := plugin.Open(fmt.Sprintf("./pkg/problems/%s/main.so",  problemFileNoExt))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
