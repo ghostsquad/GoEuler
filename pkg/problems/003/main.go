@@ -4,14 +4,18 @@ package main
 
 import (
 	"context"
+	"time"
 	"github.com/ghostsquad/goeuler/pkg"
 )
 
 type solution struct {}
 
 func (s solution) Solve(ctx context.Context) {
-	pkg.SolveWith(ctx, "example", func() int {
+	pkg.SolveWith(ctx, "003", func() int {
 		answer := 0
+
+		time.Sleep(5 * time.Second)
+
 		return answer
 	})
 }

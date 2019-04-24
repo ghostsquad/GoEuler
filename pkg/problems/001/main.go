@@ -3,6 +3,7 @@ package main
 //go:generate go build -buildmode=plugin -o main.so main.go
 
 import (
+	"context"
 	"github.com/ghostsquad/goeuler/pkg"
 )
 
@@ -16,8 +17,8 @@ func getSumOfMultiples(multipleOf, max int) (sum int) {
 	return
 }
 
-func (s solution) Solve() {
-	pkg.SolveWith("001", func() int {
+func (s solution) Solve(ctx context.Context) {
+	pkg.SolveWith(ctx, "001", func() int {
 		sumThrees := getSumOfMultiples(3, 1000)
 		sumFives := getSumOfMultiples(5, 1000)
 		sumDups := getSumOfMultiples(15, 1000)

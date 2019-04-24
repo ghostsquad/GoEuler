@@ -7,5 +7,5 @@ repo_dir="$( cd "$( dirname "$0" )" && pwd )"
 (
     cd "${repo_dir}"
     go generate ./...
-    go run main.go "$@"
+    go run . solve "$@"
 )

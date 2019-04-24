@@ -1,57 +1,89 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
-	"plugin"
-	"strconv"
+	"os/signal"
+	"syscall"
 	"github.com/spf13/cobra"
+	// a universal mechanism to manage goroutine lifecycles
+	"github.com/oklog/run"
+	"github.com/pkg/errors"
+	"github.com/fatih/color"
 )
 
 type Solution interface {
-	Solve()
+	Solve(context.Context)
 }
 
-var rootCmd = &cobra.Command{
-	Use:   "goeuler",
-	Short: "Run euler solutions",
-	Run: func(cmd *cobra.Command, args []string) {
-		problemNumStr := args[0]
-
-		problemNum, err := strconv.Atoi(problemNumStr)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		// load module
-		// 1. open the so file to load the symbols
-		problemFileNoExt := fmt.Sprintf("%03d", problemNum)
-		plug, err := plugin.Open(fmt.Sprintf("./pkg/problems/%s/main.so",  problemFileNoExt))
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		symSolution, err := plug.Lookup("Solution")
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		var solution Solution
-		solution, ok := symSolution.(Solution)
-		if !ok {
-			fmt.Println("unexpected type from module symbol")
-			os.Exit(1)
-		}
-
-		solution.Solve()
-	},
+func newRootCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "goeuler [sub]",
+		Short: "Run Project Euler solutions",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 0 {
+				cmd.Help()
+				os.Exit(0)
+			}
+		},
+	}
 }
 
 func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+	ctx, cancel := context.WithCancel(context.Background())
+
+	rootCmd := newRootCommand()
+
+	genPrimesCmd := NewGenPrimesCmd(ctx)
+	solveCmd := NewSolveCmd(ctx)
+
+	rootCmd.AddCommand(genPrimesCmd)
+	rootCmd.AddCommand(solveCmd)
+
+	runGroup := run.Group{}
+	{
+		cancelInterrupt := make(chan struct{})
+		runGroup.Add(
+			createSignalWatcher(ctx, cancelInterrupt, cancel), 
+			func(error) {
+				close(cancelInterrupt)
+			})
+	}
+	{
+		runGroup.Add(func() error {
+			return rootCmd.Execute()
+		}, func(error) {
+			cancel()
+		})
+	}
+
+	err := runGroup.Run()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "exit reason: %s\n", err)
 		os.Exit(1)
+	}
+
+	color.New(color.FgGreen).Fprintln(os.Stderr, "Done!")
+}
+
+// This function just sits and waits for ctrl-C
+func createSignalWatcher(ctx context.Context, cancelInterruptChan <-chan struct{}, cancel context.CancelFunc) func() error {
+	return func() error {
+		c := make(chan os.Signal, 1)
+
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		select {
+		case sig := <-c:
+			err := errors.Errorf("received signal %s", sig)
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			signal.Stop(c)
+			cancel()
+			return err
+		case <-ctx.Done():
+			return nil
+		case <-cancelInterruptChan:
+			return nil
+		}
 	}
 }
