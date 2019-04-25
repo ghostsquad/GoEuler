@@ -36,11 +36,6 @@ func (p *Primes) Next(ctx context.Context) (answer uint64, err error) {
 // if the number provided is not a prime, stops after finding the next prime after the given number
 // otherwise generates primes up to the number given
 func (p *Primes) GenerateUpToIncluding(ctx context.Context, channel chan<- uint64, max uint64) (err error) {
-	newPrimes := []uint64{}
-	defer func() {
-		p.Known = append(p.Known, newPrimes...)
-	}()
-
 	maxKnown := p.Known[len(p.Known) - 1]
 
 	i := maxKnown + 2
@@ -62,7 +57,7 @@ func (p *Primes) GenerateUpToIncluding(ctx context.Context, channel chan<- uint6
 		}
 
 		if isPrimeAnswer {
-			newPrimes = append(newPrimes, i)
+			p.Known = append(p.Known, i)
 			maxKnown = i
 			channel <- i
 		}
@@ -72,11 +67,6 @@ func (p *Primes) GenerateUpToIncluding(ctx context.Context, channel chan<- uint6
 }
 
 func (p *Primes) GenerateCountOf(ctx context.Context, channel chan<- uint64, maxCount uint64) (err error) {
-	newPrimes := []uint64{}
-	defer func() {
-		p.Known = append(p.Known, newPrimes...)
-	}()
-
 	count := uint64(len(p.Known))
 	i := p.Known[count - 1] + 2
 	for count < maxCount {
@@ -93,7 +83,7 @@ func (p *Primes) GenerateCountOf(ctx context.Context, channel chan<- uint64, max
 		}
 
 		if isPrimeAnswer {
-			newPrimes = append(newPrimes, i)
+			p.Known = append(p.Known, i)
 			count++
 			channel <- i
 		}

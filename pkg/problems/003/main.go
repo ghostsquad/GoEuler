@@ -2,9 +2,14 @@ package main
 
 //go:generate go build -buildmode=plugin -o main.so main.go
 
+// The prime factors of 13195 are 5, 7, 13 and 29.
+//
+// What is the largest prime factor of the number 600851475143 ?
+
 import (
+	"fmt"
+	"math"
 	"context"
-	"time"
 	"github.com/ghostsquad/goeuler/pkg"
 )
 
@@ -12,9 +17,40 @@ type solution struct {}
 
 func (s solution) Solve(ctx context.Context) {
 	pkg.SolveWith(ctx, "003", func() int {
-		answer := 0
+		var answer int
+		var num uint64 = 600851475143
+		sqrt := uint64(math.Sqrt(float64(num)))
 
-		time.Sleep(5 * time.Second)
+		kp := pkg.NewPrimes()
+		channel := make(chan uint64)
+		go func() {
+			for {
+				<-channel
+				//fmt.Printf("adding to known: %d\n", n)
+			}
+		}()
+		err := kp.GenerateUpToIncluding(ctx, channel, sqrt)
+		if err != nil {
+			fmt.Printf("Error generating primes: %v\n", err)
+			return 0
+		}
+		//close(channel)
+
+		startingI := len(kp.Known) - 1
+		for i := startingI; i > 0; i-- {
+			if kp.Known[i] <= sqrt {
+				startingI = i
+				break
+			}
+		}
+
+		for i := startingI; i > 0; i-- {
+			prime := kp.Known[i]
+			if num % prime == 0 {
+				answer = int(prime)
+				break
+			}
+		}
 
 		return answer
 	})
