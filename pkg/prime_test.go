@@ -100,17 +100,12 @@ func TestIsPrime(t *testing.T) {
 		sqrt := math.Sqrt(float64(num))
 		sqrtInt := uint64(sqrt)
 
-		channel := make(chan uint64)
-		go func() {
-			for {
-				<-channel
-			}
-		}()
+		resultsChan, errChan := kp.GenerateUpToIncluding(ctx, sqrtInt)
+		for range resultsChan {}
 
-		err2 := kp.GenerateUpToIncluding(ctx, channel, sqrtInt)
-		close(channel)
-
-		assert.Nil(t, err2)
+		if err := <-errChan; err != nil {
+			t.Errorf("received error from generate! err: %v", err)
+		}
 
 		result, err3 := kp.IsPrime(ctx, num)
 
@@ -126,17 +121,15 @@ func TestGenerateCountOf(t *testing.T) {
 	kp := NewPrimes()
 	ctx := context.TODO()
 
-	channel := make(chan uint64)
-	go func() {
-		for {
-			<-channel
-		}
-	}()
 	assert.NotEqual(t, 20, len(kp.Known))
 
-	err := kp.GenerateCountOf(ctx, channel, 20)
+	resultsChan, errChan := kp.GenerateCountOf(ctx, 20)
+	for range resultsChan {}
 
-	assert.Nil(t, err)
+	if err := <-errChan; err != nil {
+		t.Errorf("received error from generate! err: %v", err)
+	}
+
 	assert.Equal(t, 20, len(kp.Known))
 
 	for _, n := range kp.Known {

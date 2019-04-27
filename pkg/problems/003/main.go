@@ -22,19 +22,13 @@ func (s solution) Solve(ctx context.Context) {
 		sqrt := uint64(math.Sqrt(float64(num)))
 
 		kp := pkg.NewPrimes()
-		channel := make(chan uint64)
-		go func() {
-			for {
-				<-channel
-				//fmt.Printf("adding to known: %d\n", n)
-			}
-		}()
-		err := kp.GenerateUpToIncluding(ctx, channel, sqrt)
-		if err != nil {
-			fmt.Printf("Error generating primes: %v\n", err)
+		
+		resultsChan, errChan := kp.GenerateUpToIncluding(ctx, sqrt)
+		for range resultsChan {}
+		if err := <-errChan; err != nil {
+			fmt.Printf("received error from generate! err: %v\n", err)
 			return 0
 		}
-		//close(channel)
 
 		startingI := len(kp.Known) - 1
 		for i := startingI; i > 0; i-- {
