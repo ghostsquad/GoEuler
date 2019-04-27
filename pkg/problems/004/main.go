@@ -20,18 +20,18 @@ import (
 type solution struct {}
 
 func (s solution) Solve(ctx context.Context) {
-	pkg.SolveWith(ctx, "004", func() int {
-		answer := 0
-		factor1StartPoint := 999
+	pkg.SolveWith(ctx, "004", func() uint64 {
+		var answer uint64
+		var factor1StartPoint uint64 = 999
 		factor2StartPoint := factor1StartPoint
-		biggestProductPalindromeFromPreviousRun := 0
+		var biggestProductPalindromeFromPreviousRun uint64
 
 		thresholdReached := false
 
 		for factor1 := factor1StartPoint; factor1 > 0; factor1-- {
 			factor2StartPoint = factor1
 
-			var product int
+			var product uint64
 
 			for factor2 := factor2StartPoint; factor2 > 0; factor2-- {
 				//fmt.Printf("Checking: %d x %d\n", factor1, factor2)
@@ -73,8 +73,8 @@ func (s solution) Solve(ctx context.Context) {
 	})
 }
 
-func isPalindrome(x int) bool {
-	str := strconv.Itoa(x)
+func isPalindrome(x uint64) bool {
+	str := strconv.FormatUint(x, 10)
 	rev := reverse(str)
 
 	return str == rev

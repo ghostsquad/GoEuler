@@ -16,8 +16,8 @@ import (
 type solution struct {}
 
 func (s solution) Solve(ctx context.Context) {
-	pkg.SolveWith(ctx, "003", func() int {
-		var answer int
+	pkg.SolveWith(ctx, "003", func() uint64 {
+		var answer uint64
 		var num uint64 = 600851475143
 		sqrt := uint64(math.Sqrt(float64(num)))
 
@@ -41,7 +41,7 @@ func (s solution) Solve(ctx context.Context) {
 		for i := startingI; i > 0; i-- {
 			prime := kp.Known[i]
 			if num % prime == 0 {
-				answer = int(prime)
+				answer = prime
 				break
 			}
 		}

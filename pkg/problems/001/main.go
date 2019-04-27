@@ -30,12 +30,14 @@ func getSumOfMultiples2(max int, multiples ...int) (sum int) {
 }
 
 func (s solution) Solve(ctx context.Context) {
-	pkg.SolveWith(ctx, "001", func() int {
+	pkg.SolveWith(ctx, "001", func() uint64 {
+		var answer uint64
+
 		sumThrees := getSumOfMultiples1(3, 1000)
 		sumFives := getSumOfMultiples1(5, 1000)
 		sumDups := getSumOfMultiples1(15, 1000)
 		
-		answer := sumThrees + sumFives - sumDups
+		answer = uint64(sumThrees) + uint64(sumFives) - uint64(sumDups)
 		return answer
 	})
 }

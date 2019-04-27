@@ -10,12 +10,13 @@ import (
 type solution struct {}
 
 func (s solution) Solve(ctx context.Context) {
-    pkg.SolveWith(ctx, "002", func() int {
-        term1 := 1
-        term2 := 2
-        var tempTerm int
-        fourMil := 4000000
-        var answer int
+    pkg.SolveWith(ctx, "002", func() uint64 {
+        var answer uint64
+
+        var term1 uint64 = 1
+        var term2 uint64 = 2
+        var tempTerm uint64
+        var fourMil uint64 = 4000000
 
         for term2 <= fourMil {
             if term2 % 2 == 0 {

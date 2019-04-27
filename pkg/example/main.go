@@ -10,8 +10,8 @@ import (
 type solution struct {}
 
 func (s solution) Solve(ctx context.Context) {
-	pkg.SolveWith(ctx, "example", func() int {
-		answer := 0
+	pkg.SolveWith(ctx, "example", func() uint64 {
+		var answer uint64
 		return answer
 	})
 }
