@@ -3,9 +3,9 @@ package pkg
 import (
 	"context"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestIsPrime(t *testing.T) {
@@ -101,7 +101,8 @@ func TestIsPrime(t *testing.T) {
 		sqrtInt := uint64(sqrt)
 
 		resultsChan, errChan := kp.GenerateUpToIncluding(ctx, sqrtInt)
-		for range resultsChan {}
+		for range resultsChan {
+		}
 
 		if err := <-errChan; err != nil {
 			t.Errorf("received error from generate! err: %v", err)
@@ -112,7 +113,7 @@ func TestIsPrime(t *testing.T) {
 		assert.Nil(t, err3)
 		assert.True(t, result, fmt.Sprintf("%+v", kp.Known))
 
-		largestKnownPrime := kp.Known[len(kp.Known) - 1]
+		largestKnownPrime := kp.Known[len(kp.Known)-1]
 		assert.True(t, largestKnownPrime > sqrtInt, fmt.Sprintf("%d should be > %d", largestKnownPrime, sqrtInt))
 	})
 }
@@ -124,7 +125,8 @@ func TestGenerateCountOf(t *testing.T) {
 	assert.NotEqual(t, 20, len(kp.Known))
 
 	resultsChan, errChan := kp.GenerateCountOf(ctx, 20)
-	for range resultsChan {}
+	for range resultsChan {
+	}
 
 	if err := <-errChan; err != nil {
 		t.Errorf("received error from generate! err: %v", err)
@@ -138,4 +140,29 @@ func TestGenerateCountOf(t *testing.T) {
 		assert.Nil(t, err)
 		assert.True(t, result)
 	}
+}
+
+func TestFactorize(t *testing.T) {
+	kp := NewPrimes()
+	ctx := context.TODO()
+
+	resultsChan, errChan := kp.Factorize(ctx, 5724)
+	factors := []uint64{}
+	for factor := range resultsChan {
+		factors = append(factors, factor)
+	}
+	if err := <-errChan; err != nil {
+		t.Errorf("received error from generate! err: %v", err)
+	}
+
+	expectedFactors := []uint64{
+		2,
+		2,
+		3,
+		3,
+		3,
+		53,
+	}
+
+	assert.Equal(t, expectedFactors, factors)
 }

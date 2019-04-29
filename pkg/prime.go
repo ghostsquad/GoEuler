@@ -3,8 +3,8 @@ package pkg
 import (
 	"context"
 	"github.com/pkg/errors"
-	"sort"
 	"math"
+	"sort"
 )
 
 type Primes struct {
@@ -30,7 +30,7 @@ func (p *Primes) GenerateUpToIncluding(ctx context.Context, max uint64) (<-chan 
 		defer close(resultsChannel)
 		defer close(errorChannel)
 
-		maxKnown := p.Known[len(p.Known) - 1]
+		maxKnown := p.Known[len(p.Known)-1]
 
 		i := maxKnown + 2
 		for {
@@ -75,7 +75,7 @@ func (p *Primes) GenerateCountOf(ctx context.Context, maxCount uint64) (<-chan u
 		defer close(errorChannel)
 
 		count := uint64(len(p.Known))
-		i := p.Known[count - 1] + 2
+		i := p.Known[count-1] + 2
 		for count < maxCount {
 			select {
 			case <-ctx.Done():
@@ -108,14 +108,14 @@ func (p *Primes) GenerateCountOf(ctx context.Context, maxCount uint64) (<-chan u
 func (p *Primes) IsPrime(ctx context.Context, x uint64) (answer bool, err error) {
 	// since we know that Known is in order, we can use a binary search
 	i := sort.Search(len(p.Known), func(i int) bool { return p.Known[i] >= x })
-    if i < len(p.Known) && p.Known[i] == x {
+	if i < len(p.Known) && p.Known[i] == x {
 		return true, nil
 	}
 
 	sqrt := math.Sqrt(float64(x))
 
 	// we may not have enough prime numbers to do arbitrary calculations efficiently
-	if p.Known[len(p.Known) - 1] < uint64(sqrt) + 1 {
+	if p.Known[len(p.Known)-1] < uint64(sqrt)+1 {
 		return false, errors.New("not enough known primes")
 	}
 
@@ -127,11 +127,11 @@ func (p *Primes) IsPrime(ctx context.Context, x uint64) (answer bool, err error)
 		default:
 		}
 
-		if kp > uint64(sqrt) + 1 {
+		if kp > uint64(sqrt)+1 {
 			return true, nil
 		}
 
-		if x % kp == 0 {
+		if x%kp == 0 {
 			return false, nil
 		}
 	}
@@ -147,9 +147,9 @@ func (p *Primes) Factorize(ctx context.Context, num uint64) (<-chan uint64, <-ch
 		defer close(resultsChannel)
 		defer close(errorChannel)
 
-		sqrt := math.Sqrt(float64(num))
-		resultsChan, errsChan := p.GenerateUpToIncluding(ctx, uint64(sqrt))
-		for range resultsChan {}
+		resultsChan, errsChan := p.GenerateUpToIncluding(ctx, uint64(num/2))
+		for range resultsChan {
+		}
 
 		if err := <-errsChan; err != nil {
 			errorChannel <- errors.Wrap(err, "prime number generation failed")
@@ -161,7 +161,7 @@ func (p *Primes) Factorize(ctx context.Context, num uint64) (<-chan uint64, <-ch
 			errorChannel <- err
 			return
 		}
-		
+
 		if result {
 			resultsChannel <- num
 			errorChannel <- nil
@@ -194,7 +194,6 @@ func (p *Primes) Factorize(ctx context.Context, num uint64) (<-chan uint64, <-ch
 
 		errorChannel <- nil
 	}()
-	
 
 	return resultsChannel, errorChannel
 }
